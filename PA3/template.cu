@@ -1,5 +1,7 @@
 #include <gputk.h>
 
+#define ceil_div(x, y) (((x) -1) / (y) + 1)
+#define BLOCKSIZE 32
 #define gpuTKCheck(stmt)                                                     \
   do {                                                                    \
     cudaError_t err = stmt;                                               \
@@ -17,9 +19,9 @@ __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
                                int numCColumns) {
   //@@ Insert code to implement matrix multiplication here
   // Calculate the row index of the C element and A
-  int Row = blockIdx.y * blockDim.y + threadIdx.y;
+  int Row = blockIdx.y * BLOCKSIZE + (threadIdx.y / BLOCKSIZE);
   // Calculate the column index of C and B
-  int Col = blockIdx.x * blockDim.x + threadIdx.x;
+  int Col = blockIdx.x * BLOCKSIZE + (threadIdx.y % BLOCKSIZE);
 
   if ((Row < numCRows) && (Col < numCColumns)) {
     float Cvalue = 0.0;
@@ -78,7 +80,8 @@ int main(int argc, char **argv) {
   gpuTKTime_stop(GPU, "Copying input memory to the GPU.");
 
   //@@ Initialize the grid and block dimensions here
-  dim3 dimGrid((numCColumns - 1) / 16 + 1, (numCRows - 1) / 16 + 1, 1);
+  // dim3 dimGrid((numCColumns - 1) / 16 + 1, (numCRows - 1) / 16 + 1, 1);
+  dim3 dimGrid(ceil_div(numCColumns, 16), ceil_div(numCRows, 16), 1);
   dim3 dimBlock(16, 16, 1);
 
   gpuTKTime_start(Compute, "Performing CUDA computation");
