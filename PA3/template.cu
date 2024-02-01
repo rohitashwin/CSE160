@@ -32,16 +32,10 @@ __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
   int col = blockIdx.x * blockDim.x + threadIdx.x;
   if (row >= numCRows || col >= numCColumns) return;
   float sum = 0;
-  float** As = (float**)(A);
-  float** Bs = (float**)(B);
-  float** Cs = (float**)(C);
   for (int i = 0; i < K; ++i)
   {
-    // sum += (((float**)(A))[row][i]) * (((float**))B[i][col])
-    sum += As[row][i] * Bs[i][col];
+    sum += A[row * K + i] * B[i * K + col];
   }
-  // (float**)(C)[row][col] = sum;
-  Cs[row][col] = sum;
 }
 
 int main(int argc, char **argv)
