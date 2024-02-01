@@ -34,9 +34,9 @@ __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
   float sum = 0;
   for (int i = 0; i < K; ++i)
   {
-    sum += ((float**)(A)[row][i]) * ((float**)B[i][column]);
+    sum += ((float**)(A)[row][i]) * ((float**)B[i][col]);
   }
-  (float**)(C)[row][column] = sum;
+  (float**)(C)[row][col] = sum;
 }
 
 int main(int argc, char **argv)
